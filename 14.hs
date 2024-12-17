@@ -20,11 +20,11 @@ oddNumbers = [n | n <- [1..], odd n]
 
 -- Первые пять четных чисел
 evenNumbers :: [Int]
-evenNumbers = take 5 [n | n <- [2..], even n]
+evenNumbers = [2,4,6,8,10]
 
 -- Построение пирамиды
 buildPyramid :: Int -> [Int]
-buildPyramid levels = take totalElements finalHeap
+buildPyramid levels = finalHeap  -- Убрали 'take totalElements'
   where
     totalElements = 2 ^ levels - 1  -- Количество узлов в полном бинарном дереве
     initialHeap = buildHeap $ take totalElements oddNumbers
@@ -34,19 +34,21 @@ buildPyramid levels = take totalElements finalHeap
 printPyramid :: [Int] -> IO ()
 printPyramid heap = mapM_ printLevel [0..levels - 1]
   where
-    levels = floor $ logBase 2 (fromIntegral (length heap + 1))
-    printLevel l = print $ take (2^l) $ drop (2^l - 1) heap
-
+    totalNodes = length heap
+    levels = ceiling $ logBase 2 (fromIntegral (totalNodes + 1))  -- Используем ceiling вместо floor
+    printLevel l = do
+      let start = 2^l - 1
+      let end = min (2^(l+1) - 1) totalNodes
+      print $ take (end - start) $ drop start heap
+      
 main :: IO ()
 main = do
   let levels = 4
   let heap = buildPyramid levels
   putStrLn "Пирамида по уровням:"
   printPyramid heap
-
-
--- Пирамида по уровням:
 -- [1]
 -- [2,5]
 -- [3,9,11,13]
 -- [4,6,10,21,23,25,27,29]
+-- [15,7,17,8,19]
